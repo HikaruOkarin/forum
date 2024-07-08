@@ -33,7 +33,6 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	w.Write([]byte("Display the home page"))
 }
 
 func ShowSnippet(w http.ResponseWriter, r *http.Request) {
