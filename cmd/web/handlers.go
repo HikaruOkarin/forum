@@ -9,7 +9,7 @@ import (
 
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 	files := []string{
@@ -20,17 +20,15 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
-		app.errorLog.Println(err.Error())
-
-		http.Error(w, "Internal Server Error", 500)
+		app.serverError(w, err)
 		return
 
 	}
 
 	err = tmpl.Execute(w, nil)
 	if err != nil {
-		app.errorLog.Println(err.Error())
-		http.Error(w, "Internal Server Error", 500)
+		app.serverError(w, err)
+
 		return
 	}
 }
@@ -38,7 +36,7 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 func (app *application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
-		http.Error(w, "404 page not found", 404)
+		app.notFound(w)
 		return
 	}
 	info := fmt.Sprintf("number of snippet id = %d", id)
@@ -48,7 +46,7 @@ func (app *application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
 func (app *application) CreateSnippet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", "POST")
-		http.Error(w, "Method Not Allowed", 405)
+		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
 	w.Write([]byte("Create a new post"))
