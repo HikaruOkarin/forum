@@ -44,10 +44,20 @@ func (app *application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) CreateSnippet(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", "POST")
-		app.clientError(w, http.StatusMethodNotAllowed)
+	// if r.Method != http.MethodPost {
+	// 	w.Header().Set("Allow", "POST")
+	// 	app.clientError(w, http.StatusMethodNotAllowed)
+	// 	return
+	// }
+
+	title := "O snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n Kobayashi"
+	expires := "7"
+	id, err := app.posts.Insert(title, content, expires)
+	if err != nil {
+		app.serverError(w, err)
 		return
 	}
-	w.Write([]byte("Create a new post"))
+
+	http.Redirect(w, r, fmt.Sprintf("/snippet?id=%d", id), http.StatusSeeOther)
 }
