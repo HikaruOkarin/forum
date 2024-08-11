@@ -25,9 +25,40 @@ func (m *PostModel) Insert(title, content, expires string) (int, error) {
 }
 
 func (m *PostModel) Get(id int) (*models.Post, error) {
-	return nil, nil
+	smt := `SELECT id, title,content, created,expires FROM snippets
+	WHERE expires > UTC_TIMESTAMP() AND id = ?`
+	row := m.DB.QueryRow(smt, id)
+
+	s := &models.Post{}
+	err := row.Scan(&s.Id, &s.Title, &s.Content, &s.Created, &s.Expires)
+	if err == sql.ErrNoRows {
+		return nil, models.ErrNoRecord
+	} else if err != nil {
+		return nil, err
+	}
+	return s, nil
 }
 
 func (m *PostModel) Latest() ([]*models.Post, error) {
-	return nil, nil
+	stmt := `SELECT id, title, content, created, expires FROM snippets
+	WHERE expires > UTC_TIMESTAMP() ORDER BY created DESC LIMIT 10`
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	snippets := []*models.Post{}
+	for rows.Next() {
+		s := &models.Post{}
+		err = rows.Scan(&s.Id, &s.Content, &s.Title, &s.Created, &s.Expires)
+		if err != nil {
+			return nil, err
+		} else {
+			snippets = append(snippets, s)
+		}
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return snippets, nil
 }

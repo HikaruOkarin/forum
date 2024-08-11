@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	"html/template"
+	"forum/pkg/models"
+
+	// "html/template"
 	"net/http"
 	"strconv"
 )
@@ -12,25 +14,33 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-	files := []string{
-		"./ui/html/homepage.html",
-		"./ui/html/base_layout.html",
-		"./ui/html/footer_partial.html",
-	}
-
-	tmpl, err := template.ParseFiles(files...)
+	s, err := app.posts.Latest()
 	if err != nil {
 		app.serverError(w, err)
 		return
-
 	}
-
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		app.serverError(w, err)
-
-		return
+	for _, post := range s {
+		fmt.Fprintf(w, "%v\n", post)
 	}
+	// files := []string{
+	// 	"./ui/html/homepage.html",
+	// 	"./ui/html/base_layout.html",
+	// 	"./ui/html/footer_partial.html",
+	// }
+
+	// tmpl, err := template.ParseFiles(files...)
+	// if err != nil {
+	// 	app.serverError(w, err)
+	// 	return
+
+	// }
+
+	// err = tmpl.Execute(w, nil)
+	// if err != nil {
+	// 	app.serverError(w, err)
+
+	// 	return
+	// }
 }
 
 func (app *application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
@@ -39,8 +49,16 @@ func (app *application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-	info := fmt.Sprintf("number of snippet id = %d", id)
-	w.Write([]byte(info + "\n"))
+	s, err := app.posts.Get(id)
+	if err == models.ErrNoRecord {
+		app.notFound(w)
+		return
+	} else if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	fmt.Fprintf(w, "%v", s)
 }
 
 func (app *application) CreateSnippet(w http.ResponseWriter, r *http.Request) {
