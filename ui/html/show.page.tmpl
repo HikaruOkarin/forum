@@ -1,0 +1,18 @@
+{{template "base" .}}
+{{define "title"}}Snippet #{{.Post.Id}}{{end}}
+{{define "body"}}
+{{with .Post}}
+<div class='snippet'>
+<div class='metadata'>
+
+<strong>{{.Title}}</strong>
+<span>#{{.Id}}</span>
+</div>
+<pre><code>{{.Content}}</code></pre>
+<div class='metadata'>
+<time>{{.Created | humanDate | printf "Created:%s"}}</time>
+<time>Expires: {{humanDate .Expires}}</time>
+</div>
+</div>
+{{end}}
+{{end}}

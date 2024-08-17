@@ -1,5 +1,4 @@
-package models 
-
+package models
 
 import (
 	"errors"
@@ -8,10 +7,9 @@ import (
 
 var ErrNoRecord = errors.New("models: no matching record found")
 
-
 type Post struct {
-	Id int
-	Title string
+	Id      int
+	Title   string
 	Content string
 	Created time.Time
 	Expires time.Time

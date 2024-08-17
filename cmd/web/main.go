@@ -3,18 +3,20 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"forum/pkg/models/mysql"
+	"html/template"
 	"log"
 	"net/http"
-	"forum/pkg/models/mysql"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	posts *mysql.PostModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	posts         *mysql.PostModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -30,11 +32,16 @@ func main() {
 		errorLog.Fatal(err)
 	}
 	defer db.Close()
+	templateCache, err := newTemplateCache("./ui/html")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
 
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		posts: &mysql.PostModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		posts:         &mysql.PostModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	srv := &http.Server{

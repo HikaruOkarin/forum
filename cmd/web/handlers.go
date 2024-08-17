@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"forum/pkg/models"
 
-	// "html/template"
 	"net/http"
 	"strconv"
 )
@@ -19,28 +18,10 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	for _, post := range s {
-		fmt.Fprintf(w, "%v\n", post)
-	}
-	// files := []string{
-	// 	"./ui/html/homepage.html",
-	// 	"./ui/html/base_layout.html",
-	// 	"./ui/html/footer_partial.html",
-	// }
+	data := &templateData{Posts: s}
 
-	// tmpl, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// 	return
+	app.render(w, r, "home.page.tmpl",data)
 
-	// }
-
-	// err = tmpl.Execute(w, nil)
-	// if err != nil {
-	// 	app.serverError(w, err)
-
-	// 	return
-	// }
 }
 
 func (app *application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
@@ -50,6 +31,7 @@ func (app *application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s, err := app.posts.Get(id)
+	data := &templateData{Post: s}
 	if err == models.ErrNoRecord {
 		app.notFound(w)
 		return
@@ -58,7 +40,8 @@ func (app *application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%v", s)
+	app.render(w, r, "show.page.tmpl", data)
+
 }
 
 func (app *application) CreateSnippet(w http.ResponseWriter, r *http.Request) {
