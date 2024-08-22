@@ -3,12 +3,17 @@ package main
 import (
 	"forum/pkg/models"
 	"html/template"
+	
 	"path/filepath"
 	"time"
+
+	"forum/pkg/forms"
 )
 
 type templateData struct {
 	CurrentYear int
+	Flash string
+	Form *forms.Form
 	Post        *models.Post
 	Posts       []*models.Post
 }
